@@ -10,8 +10,8 @@ type triple_int
     
     operator = takes int
 
-   def int_bin as [first arg..]
-	  data from 0 to 64 = int_bin from 0 to 64
+       def int_bin as [first arg..]
+	 data from 0 to 64 = int_bin from 0 to 64
 
     operator = takes [0]
 
