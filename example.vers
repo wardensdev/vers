@@ -1,0 +1,186 @@
+uses core/lib
+uses core/io
+
+
+type triple_int
+
+    def data as [0] of 96
+
+    triple_int takes int returns triple_int        
+    
+    operator = takes int
+
+    def int_bin as [first arg..]
+	  data from 0 to 64 = int_bin from 0 to 64
+
+    operator = takes [0]
+
+        def arg_length as uint = run array_length with first arg
+        def data_length as uint = run array_length with data
+
+        if arg_length > data_length
+            run error from io with "Data being assigned is too long!"
+
+	      data from 0 to arg_length = first arg from 0 to arg_length
+
+    operator $ takes uint
+
+        def leftovers as [0] of first arg
+        def data_length as uint = run array_length with data
+        def slice_index as uint = data_length - first arg
+
+        leftovers = data from 0 to slice_index
+        data = leftovers
+        
+        discard
+        
+
+main returns int
+    
+    # The "def" keyword declares a variable and initializes it to the type's default value.
+    def some_integer as int
+
+    # Arrays can be declared by wrapping the type name in square braces.
+    def some_array as [float]
+
+    # Variables can be set explicitly using "="
+    some_array = [1.0, 2.0, 3.0, 4.0]
+    
+    # Call a function with the "run" keyword followed by the function name.
+    # To pass arguments to the function, use the "with" keyword followed by a comma separated list.
+
+    run increment_array with some_array, 2.0
+    
+    # You can assign a function to a variable and access its state.
+    
+    def sum_function as float
+    sum_function = sum
+
+    # Some functions can be declared as private. Meaning their state
+    # cannot be accessed outside of their scope.
+
+    def sum_count as float
+    sum_count = sum first var            # Error: Cannot read a private function member!
+    sum first var = 5                    # Error: Cannot write to a private function member!
+    
+    # This can be useful for monitoring scoped content in threaded functions.
+    # Threaded functions automatically create and start a thread for themselves to run on.
+
+    # The "during" keyord denotes a block of code that will be executed while the thread is running.
+    # The code within the block cannot have access to the result of the threaded function,
+    # but it does have access to function state if it is defined as public (private by default).
+
+    during run big_iterator
+        
+        run print from io with func_accum           # Prints and blocks until the thread is joined.
+
+    # Calling threaded functions without the "during" keyword will create and start
+    # a thread, and completely detach it without blocking.
+    # You can access the threaded function's state safely by instancing the function
+    # by assigning the function to a variable.
+    
+    def iterator as func
+    iterator = big_iterator
+
+    def iterator_var as int
+    iterator_var = iterator first var
+
+    run iterator
+    
+
+
+## Function state:
+## 
+## A function holds three parameters:
+##
+##     1. The function identifier
+##
+##     2. An array of arguments
+##            - Only the argument types are defined in the function signature.
+##            - Arguments are accessed using the ordinal keywords ("first", "second", "third", etc.) folowed by "arg"
+##	        which correspond to their indices in the args array.
+##
+##     3. An array of locally defined variables
+##            - Local variables are indexed into an array in the order they appear in the block. 
+##              (Vertical order on the page, not dependent on control flow)
+##            - Local variables are accessed using the ordinal keywords followed by "var"
+##     
+## These parameters are accessible anywhere unless otherwise specified using an access modifier.
+
+
+is private
+sum takes [float] returns float
+
+    def count as float
+
+    for e in first arg
+        count += e
+
+    return count
+
+
+is thread, public
+big_iterator returns none
+
+    def accum as int
+
+    from 0 to 9999999 as i
+        accum += i
+        run print from io with "I'm Iterating!!!!"
+
+
+add_to_array takes [float], float returns none
+    
+    for e in first arg
+        e += second arg
+
+
+array_length takes [float] returns uint
+
+    def i as uint
+
+    for e in first arg
+        i += 1
+    
+    return i
+
+
+combine_arrays takes [float], [float] returns [float]
+
+    def first_length as uint
+    def second_length as uint
+
+    first_length = run array_length with first arg
+    second length = run array_length with second arg
+
+    if first_length != second_length
+
+        run throw_error with "Cannot combine arrays of different lengths!"
+
+    def new_array as [float] of first_length
+    
+    from 0 to first_length as index
+
+        new_array at index = first arg at index + second arg at index
+
+    return new_array
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
